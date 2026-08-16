@@ -1,0 +1,499 @@
+local P, RS, U = game:GetService("Players"), game:GetService("RunService"), game:GetService("UserInputService")
+local p, uj, he, fly, vFly = P.LocalPlayer, true, false, false, false
+local nc, bv, bg, rc, vBv, vBg, vRc
+_G.HeadSize, _G.HitboxTransparency, _G.Disabled = 2, 100, false
+
+-- Fixed Hitbox Expander with dynamic percentage transparency (0 to 100)
+RS.RenderStepped:Connect(function()
+if _G.Disabled then
+for _, v in ipairs(P:GetPlayers()) do
+if v ~= p and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+local hrp = v.Character.HumanoidRootPart
+hrp.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
+hrp.Transparency = math.clamp(_G.HitboxTransparency / 100, 0, 1)
+hrp.CanCollide = false
+if not hrp:FindFirstChild("HitboxVisual") then
+local box = Instance.new("SelectionBox", hrp)
+box.Name = "HitboxVisual"
+box.Color3 = Color3.fromRGB(255, 255, 255)
+box.LineThickness = 0.03
+box.Adornee = hrp
+end
+end
+end
+else
+for _, v in ipairs(P:GetPlayers()) do
+if v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+local hrp = v.Character.HumanoidRootPart
+local box = hrp:FindFirstChild("HitboxVisual")
+if box then box:Destroy() end
+end
+end
+end
+end)
+
+local function c(cl, pr, prm)
+local i = Instance.new(cl)
+for k, v in pairs(prm or {}) do i[k] = v end
+i.Parent = pr return i
+end
+
+-- Screen GUI Holder
+local g = c("ScreenGui", p:WaitForChild("PlayerGui"), {Name = "JonaHubNew", ResetOnSpawn = false})
+
+-- Loading Screen Setup
+local loadBg = c("Frame", g, {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(10, 10, 10), ZIndex = 100})
+
+local loadTitle = c("TextLabel", loadBg, {Size = UDim2.new(0, 300, 0, 50), Position = UDim2.new(0.5, -150, 0.42, -40), BackgroundTransparency = 1, Text = "Jona hub", TextColor3 = Color3.new(1, 1, 1), TextSize = 24, Font = Enum.Font.SourceSansBold})
+local loadSub = c("TextLabel", loadBg, {Size = UDim2.new(0, 300, 0, 30), Position = UDim2.new(0.5, -150, 0.42, 0), BackgroundTransparency = 1, Text = "assets", TextColor3 = Color3.fromRGB(150, 150, 150), TextSize = 14, Font = Enum.Font.SourceSans})
+
+local barBg = c("Frame", loadBg, {Size = UDim2.new(0, 300, 0, 6), Position = UDim2.new(0.5, -150, 0.52, 0), BackgroundColor3 = Color3.fromRGB(30, 30, 30), ZIndex = 101})
+c("UICorner", barBg, {CornerRadius = UDim.new(1, 0)})
+
+local barFill = c("Frame", barBg, {Size = UDim2.new(0, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(255, 255, 255), ZIndex = 102})
+c("UICorner", barFill, {CornerRadius = UDim.new(1, 0)})
+
+-- Main UI Elements (Created hidden initially)
+local f = c("Frame", g, {Size = UDim2.new(0, 520, 0, 320), Position = UDim2.new(0.5, -260, 0.5, -160), BackgroundColor3 = Color3.fromRGB(15, 15, 15), Active = true, Draggable = true, Visible = false})
+c("UICorner", f, {CornerRadius = UDim.new(0, 8)})
+
+local rb = c("TextButton", g, {Size = UDim2.new(0, 45, 0, 45), Position = UDim2.new(0.05, 0, 0.5, -22), BackgroundColor3 = Color3.fromRGB(25, 25, 25), TextColor3 = Color3.new(1, 1, 1), Text = "JH", TextSize = 18})
+c("UICorner", rb, {CornerRadius = UDim.new(1, 0)})
+
+local tb = c("Frame", f, {Size = UDim2.new(1, 0, 0, 35), BackgroundTransparency = 1})
+c("TextLabel", tb, {Size = UDim2.new(0, 150, 1, 0), Position = UDim2.new(0, 15, 0, 0), BackgroundTransparency = 1, Text = "Jona hub", TextColor3 = Color3.new(1, 1, 1), TextXAlignment = 0, TextSize = 18, Font = Enum.Font.SourceSansBold})
+
+local mb = c("TextButton", tb, {Size = UDim2.new(0, 25, 0, 25), Position = UDim2.new(1, -55, 0, 5), BackgroundTransparency = 1, Text = "-", TextColor3 = Color3.new(1, 1, 1), TextSize = 16})
+local cb = c("TextButton", tb, {Size = UDim2.new(0, 25, 0, 25), Position = UDim2.new(1, -28, 0, 5), BackgroundTransparency = 1, Text = "X", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 16})
+
+cb.MouseButton1Click:Connect(function() f.Visible, rb.Visible = false, true end)
+mb.MouseButton1Click:Connect(function() f.Visible, rb.Visible = false, true end)
+rb.MouseButton1Click:Connect(function() f.Visible, rb.Visible = true, false end)
+
+local sb = c("Frame", f, {Size = UDim2.new(0, 110, 1, -45), Position = UDim2.new(0, 8, 0, 40), BackgroundColor3 = Color3.fromRGB(22, 22, 22)})
+c("UICorner", sb, {CornerRadius = UDim.new(0, 6)})
+local ca = c("Frame", f, {Size = UDim2.new(1, -134, 1, -45), Position = UDim2.new(0, 124, 0, 40), BackgroundColor3 = Color3.fromRGB(22, 22, 22)})
+c("UICorner", ca, {CornerRadius = UDim.new(0, 6)})
+
+local t1 = c("TextButton", sb, {Size = UDim2.new(1, -10, 0, 32), Position = UDim2.new(0, 5, 0, 5), BackgroundColor3 = Color3.fromRGB(35, 35, 35), TextColor3 = Color3.new(1, 1, 1), Text = "MAIN", Font = Enum.Font.SourceSansBold, TextSize = 14})
+c("UICorner", t1, {CornerRadius = UDim.new(0, 4)})
+local t2 = c("TextButton", sb, {Size = UDim2.new(1, -10, 0, 32), Position = UDim2.new(0, 5, 0, 42), BackgroundColor3 = Color3.fromRGB(28, 28, 28), TextColor3 = Color3.fromRGB(180, 180, 180), Text = "COMBAT", Font = Enum.Font.SourceSans, TextSize = 14})
+c("UICorner", t2, {CornerRadius = UDim.new(0, 4)})
+local t3 = c("TextButton", sb, {Size = UDim2.new(1, -10, 0, 32), Position = UDim2.new(0, 5, 0, 79), BackgroundColor3 = Color3.fromRGB(28, 28, 28), TextColor3 = Color3.fromRGB(180, 180, 180), Text = "EXTRA", Font = Enum.Font.SourceSans, TextSize = 14})
+c("UICorner", t3, {CornerRadius = UDim.new(0, 4)})
+
+local p1 = c("ScrollingFrame", ca, {Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Visible = true, CanvasSize = UDim2.new(0, 0, 0, 210), ScrollBarThickness = 4})
+local p2 = c("Frame", ca, {Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Visible = false})
+local p3 = c("ScrollingFrame", ca, {Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Visible = false, CanvasSize = UDim2.new(0, 0, 0, 280), ScrollBarThickness = 4})
+
+local function sw(a, b, c)
+p1.Visible, p2.Visible, p3.Visible = a, b, c
+t1.BackgroundColor3, t1.TextColor3 = a and Color3.fromRGB(35, 35, 35) or Color3.fromRGB(28, 28, 28), a and Color3.new(1, 1, 1) or Color3.fromRGB(180, 180, 180)
+t2.BackgroundColor3, t2.TextColor3 = b and Color3.fromRGB(35, 35, 35) or Color3.fromRGB(28, 28, 28), b and Color3.new(1, 1, 1) or Color3.fromRGB(180, 180, 180)
+t3.BackgroundColor3, t3.TextColor3 = c and Color3.fromRGB(35, 35, 35) or Color3.fromRGB(28, 28, 28), c and Color3.new(1, 1, 1) or Color3.fromRGB(180, 180, 180)
+end
+t1.MouseButton1Click:Connect(function() sw(true, false, false) end)
+t2.MouseButton1Click:Connect(function() sw(false, true, false) end)
+t3.MouseButton1Click:Connect(function() sw(false, false, true) end)
+
+local function btn(pr, t, y, col)
+local b = c("TextButton", pr, {Size = UDim2.new(0, 350, 0, 30), Position = UDim2.new(0, 12, 0, y), BackgroundColor3 = col or Color3.fromRGB(35, 35, 35), TextColor3 = Color3.new(1, 1, 1), Text = t, Font = Enum.Font.SourceSans, TextSize = 14})
+c("UICorner", b, {CornerRadius = UDim.new(0, 5)}) return b
+end
+
+local ws = c("TextBox", p1, {Size = UDim2.new(0, 170, 0, 30), Position = UDim2.new(0, 12, 0, 10), BackgroundColor3 = Color3.fromRGB(35, 35, 35), TextColor3 = Color3.new(1, 1, 1), PlaceholderText = "Walkspeed"})
+c("UICorner", ws, {CornerRadius = UDim.new(0, 5)})
+local jp = c("TextBox", p1, {Size = UDim2.new(0, 170, 0, 30), Position = UDim2.new(0, 192, 0, 10), BackgroundColor3 = Color3.fromRGB(35, 35, 35), TextColor3 = Color3.new(1, 1, 1), PlaceholderText = "JumpPower"})
+c("UICorner", jp, {CornerRadius = UDim.new(0, 5)})
+
+btn(p1, "Apply Speed & Jump", 48, Color3.fromRGB(50, 50, 50)).MouseButton1Click:Connect(function()
+local h = p.Character and p.Character:FindFirstChildOfClass("Humanoid")
+if h then
+if tonumber(ws.Text) then h.WalkSpeed = tonumber(ws.Text) end
+if tonumber(jp.Text) then h.JumpPower = tonumber(jp.Text) end
+end
+end)
+
+local ij = btn(p1, "Infinite Jump: ON", 86, Color3.fromRGB(35, 35, 35))
+ij.MouseButton1Click:Connect(function() uj = not uj ij.Text = "Infinite Jump: "..(uj and "ON" or "OFF") end)
+
+local flB = btn(p1, "Fly: OFF", 124, Color3.fromRGB(25, 25, 25))
+flB.Size = UDim2.new(0, 240, 0, 30)
+local fs = c("TextBox", p1, {Size = UDim2.new(0, 100, 0, 30), Position = UDim2.new(0, 262, 0, 124), BackgroundColor3 = Color3.fromRGB(35, 35, 35), TextColor3 = Color3.new(1, 1, 1), PlaceholderText = "Fly Speed"})
+c("UICorner", fs, {CornerRadius = UDim.new(0, 5)})
+
+local function sFly()
+fly = false
+if p.Character and p.Character:FindFirstChildOfClass("Humanoid") then p.Character:FindFirstChildOfClass("Humanoid").PlatformStand = false end
+if bv then bv:Destroy() bv = nil end if bg then bg:Destroy() bg = nil end if rc then rc:Disconnect() rc = nil end
+flB.Text, flB.BackgroundColor3 = "Fly: OFF", Color3.fromRGB(25, 25, 25)
+end
+
+flB.MouseButton1Click:Connect(function()
+if fly then sFly() else
+local ch = p.Character if not ch or not ch:FindFirstChild("HumanoidRootPart") then return end
+fly = true ch.Humanoid.PlatformStand = true
+bg = c("BodyGyro", ch.HumanoidRootPart, {P = 9e4, maxTorque = Vector3.new(9e9, 9e9, 9e9), cframe = ch.HumanoidRootPart.CFrame})
+bv = c("BodyVelocity", ch.HumanoidRootPart, {velocity = Vector3.new(0, 0.1, 0), maxForce = Vector3.new(9e9, 9e9, 9e9)})
+flB.Text, flB.BackgroundColor3 = "Fly: ON", Color3.fromRGB(70, 70, 70)
+rc = RS.RenderStepped:Connect(function()
+if not fly then return end
+bg.cframe = workspace.CurrentCamera.CFrame
+local s = tonumber(fs.Text) or 50
+local v = ch.Humanoid.MoveDirection * s
+if U:IsKeyDown(Enum.KeyCode.Space) or ch.Humanoid.Jump then v = v + Vector3.new(0, s, 0) elseif U:IsKeyDown(Enum.KeyCode.LeftShift) then v = v + Vector3.new(0, -s, 0) end
+bv.velocity = v
+end)
+end
+end)
+
+local mobUp, mobDown = false, false
+local upBtn = c("TextButton", g, {Size = UDim2.new(0, 50, 0, 50), Position = UDim2.new(1, -70, 0.5, -60), BackgroundColor3 = Color3.fromRGB(35, 35, 35), TextColor3 = Color3.new(1, 1, 1), Text = "^", TextSize = 24})
+c("UICorner", upBtn, {CornerRadius = UDim.new(0, 8)})
+local downBtn = c("TextButton", g, {Size = UDim2.new(0, 50, 0, 50), Position = UDim2.new(1, -70, 0.5, 10), BackgroundColor3 = Color3.fromRGB(35, 35, 35), TextColor3 = Color3.new(1, 1, 1), Text = "v", TextSize = 24})
+c("UICorner", downBtn, {CornerRadius = UDim.new(0, 8)})
+
+upBtn.MouseButton1Down:Connect(function() mobUp = true end)
+upBtn.MouseButton1Up:Connect(function() mobUp = false end)
+downBtn.MouseButton1Down:Connect(function() mobDown = true end)
+downBtn.MouseButton1Up:Connect(function() mobDown = false end)
+
+local vFlB = btn(p1, "Vehicle Fly: OFF", 162, Color3.fromRGB(25, 25, 25))
+vFlB.Size = UDim2.new(0, 240, 0, 30)
+local vfs = c("TextBox", p1, {Size = UDim2.new(0, 100, 0, 30), Position = UDim2.new(0, 262, 0, 162), BackgroundColor3 = Color3.fromRGB(35, 35, 35), TextColor3 = Color3.new(1, 1, 1), PlaceholderText = "Vehicle Fly Speed"})
+c("UICorner", vfs, {CornerRadius = UDim.new(0, 5)})
+
+local function sVFly()
+vFly = false
+mobUp, mobDown = false, false
+upBtn.Visible, downBtn.Visible = false, false
+if vBv then vBv:Destroy() vBv = nil end if vBg then vBg:Destroy() vBg = nil end if vRc then vRc:Disconnect() vRc = nil end
+vFlB.Text, vFlB.BackgroundColor3 = "Vehicle Fly: OFF", Color3.fromRGB(25, 25, 25)
+end
+
+vFlB.MouseButton1Click:Connect(function()
+if vFly then sVFly() else
+local ch = p.Character
+local seat = ch and ch:FindFirstChildOfClass("Humanoid") and ch.Humanoid.SeatPart
+if not seat then return end
+local vehicleRoot = seat.AssemblyRootPart or seat.Parent:FindFirstChild("HumanoidRootPart") or seat
+vFly = true
+if U.TouchEnabled then
+upBtn.Visible, downBtn.Visible = true, true
+end
+vBg = c("BodyGyro", vehicleRoot, {P = 9e4, maxTorque = Vector3.new(9e9, 9e9, 9e9), cframe = vehicleRoot.CFrame})
+vBv = c("BodyVelocity", vehicleRoot, {velocity = Vector3.new(0, 0.1, 0), maxForce = Vector3.new(9e9, 9e9, 9e9)})
+vFlB.Text, vFlB.BackgroundColor3 = "Vehicle Fly: ON", Color3.fromRGB(70, 70, 70)
+vRc = RS.RenderStepped:Connect(function()
+if not vFly or not seat.Parent then sVFly() return end
+local cam = workspace.CurrentCamera
+vBg.cframe = cam.CFrame
+local s = tonumber(vfs.Text) or 50
+local moveVector = Vector3.new()
+local throttle = seat.Throttle
+local steer = seat.Steer
+if U:IsKeyDown(Enum.KeyCode.W) or throttle > 0 then moveVector = moveVector + cam.CFrame.LookVector end
+if U:IsKeyDown(Enum.KeyCode.S) or throttle < 0 then moveVector = moveVector - cam.CFrame.LookVector end
+if U:IsKeyDown(Enum.KeyCode.A) or steer < 0 then moveVector = moveVector - cam.CFrame.RightVector end
+if U:IsKeyDown(Enum.KeyCode.D) or steer > 0 then moveVector = moveVector + cam.CFrame.RightVector end
+if moveVector.Magnitude > 0 then
+moveVector = moveVector.Unit * s
+end
+local upDown = 0
+if U:IsKeyDown(Enum.KeyCode.Space) or (ch and ch:FindFirstChildOfClass("Humanoid") and ch.Humanoid.Jump) or mobUp then
+upDown = s
+elseif U:IsKeyDown(Enum.KeyCode.LeftShift) or mobDown then
+upDown = -s
+end
+vBv.velocity = moveVector + Vector3.new(0, upDown, 0)
+end)
+end
+end)
+
+-- EXTRA TAB FEATURES
+local fovBox = c("TextBox", p3, {Size = UDim2.new(0, 350, 0, 30), Position = UDim2.new(0, 12, 0, 15), BackgroundColor3 = Color3.fromRGB(35, 35, 35), TextColor3 = Color3.new(1, 1, 1), PlaceholderText = "FOV"})
+c("UICorner", fovBox, {CornerRadius = UDim.new(0, 5)})
+
+fovBox:GetPropertyChangedSignal("Text"):Connect(function()
+local val = tonumber(fovBox.Text)
+if val then
+workspace.CurrentCamera.FieldOfView = math.clamp(val, 10, 120)
+end
+end)
+
+local fbEnabled = false
+local lighting = game:GetService("Lighting")
+local originalLighting = {
+Brightness = lighting.Brightness,
+ClockTime = lighting.ClockTime,
+GlobalShadows = lighting.GlobalShadows,
+OutdoorAmbient = lighting.OutdoorAmbient,
+Ambient = lighting.Ambient
+}
+local fbBtn = c("TextButton", p3, {Size = UDim2.new(0, 170, 0, 30), Position = UDim2.new(0, 12, 0, 55), BackgroundColor3 = Color3.fromRGB(25, 25, 25), TextColor3 = Color3.new(1, 1, 1), Text = "Fullbright: OFF"})
+c("UICorner", fbBtn, {CornerRadius = UDim.new(0, 5)})
+
+local fbConnection
+fbBtn.MouseButton1Click:Connect(function()
+fbEnabled = not fbEnabled
+fbBtn.Text = "Fullbright: "..(fbEnabled and "ON" or "OFF")
+fbBtn.BackgroundColor3 = fbEnabled and Color3.fromRGB(70, 70, 70) or Color3.fromRGB(25, 25, 25)
+if fbEnabled then
+originalLighting.Brightness = lighting.Brightness
+originalLighting.ClockTime = lighting.ClockTime
+originalLighting.GlobalShadows = lighting.GlobalShadows
+originalLighting.OutdoorAmbient = lighting.OutdoorAmbient
+originalLighting.Ambient = lighting.Ambient
+lighting.GlobalShadows = false
+lighting.Brightness = 2
+lighting.ClockTime = 14
+lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+lighting.Ambient = Color3.new(1, 1, 1)
+fbConnection = lighting.Changed:Connect(function(property)
+if fbEnabled then
+if property == "GlobalShadows" and lighting.GlobalShadows then lighting.GlobalShadows = false end
+if property == "Brightness" and lighting.Brightness ~= 2 then lighting.Brightness = 2 end
+end
+end)
+else
+if fbConnection then fbConnection:Disconnect() fbConnection = nil end
+lighting.GlobalShadows = originalLighting.GlobalShadows
+lighting.Brightness = originalLighting.Brightness
+lighting.ClockTime = originalLighting.ClockTime
+lighting.OutdoorAmbient = originalLighting.OutdoorAmbient
+lighting.Ambient = originalLighting.Ambient
+end
+end)
+
+local clickTpEnabled = false
+local clickTpBtn = c("TextButton", p3, {Size = UDim2.new(0, 170, 0, 30), Position = UDim2.new(0, 192, 0, 55), BackgroundColor3 = Color3.fromRGB(25, 25, 25), TextColor3 = Color3.new(1, 1, 1), Text = "Click TP: OFF"})
+c("UICorner", clickTpBtn, {CornerRadius = UDim.new(0, 5)})
+
+clickTpBtn.MouseButton1Click:Connect(function()
+clickTpEnabled = not clickTpEnabled
+clickTpBtn.Text = "Click TP: "..(clickTpEnabled and "ON" or "OFF")
+clickTpBtn.BackgroundColor3 = clickTpEnabled and Color3.fromRGB(70, 70, 70) or Color3.fromRGB(25, 25, 25)
+end)
+
+local mouse = p:GetMouse()
+local function performClickTp(pos)
+if clickTpEnabled and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+local hrp = p.Character.HumanoidRootPart
+hrp.CFrame = CFrame.new(pos + Vector3.new(0, 3, 0))
+end
+end
+
+mouse.Button1Down:Connect(function()
+if clickTpEnabled and mouse.Hit then
+performClickTp(mouse.Hit.Position)
+end
+end)
+
+U.InputBegan:Connect(function(input, gameProcessed)
+if gameProcessed then return end
+if clickTpEnabled and input.UserInputType == Enum.UserInputType.Touch then
+local cam = workspace.CurrentCamera
+local touchPos = input.Position
+local unitRay = cam:ViewportPointToRay(touchPos.X, touchPos.Y)
+local raycastParams = RaycastParams.new()
+raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+raycastParams.FilterDescendantsInstances = {p.Character}
+local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 1000, raycastParams)
+if result then
+performClickTp(result.Position)
+end
+end
+end)
+
+-- Teleport to Player Dropdown Section
+local tpDropdownOpen = false
+local tpDropBtn = c("TextButton", p3, {Size = UDim2.new(0, 350, 0, 30), Position = UDim2.new(0, 12, 0, 95), BackgroundColor3 = Color3.fromRGB(35, 35, 35), TextColor3 = Color3.new(1, 1, 1), Text = "Teleport"})
+c("UICorner", tpDropBtn, {CornerRadius = UDim.new(0, 5)})
+
+local tpListFrame = c("ScrollingFrame", p3, {Size = UDim2.new(0, 350, 0, 120), Position = UDim2.new(0, 12, 0, 130), BackgroundColor3 = Color3.fromRGB(20, 20, 20), BorderColor3 = Color3.fromRGB(40, 40, 40)})
+c("UICorner", tpListFrame, {CornerRadius = UDim.new(0, 5)})
+
+local function updateTpPlayerList()
+for _, child in ipairs(tpListFrame:GetChildren()) do
+if child:IsA("TextButton") then child:Destroy() end
+end
+local players = P:GetPlayers()
+local yPos = 2
+for _, targetPlayer in ipairs(players) do
+if targetPlayer ~= p then
+local pBtn = c("TextButton", tpListFrame, {Size = UDim2.new(1, -10, 0, 28), Position = UDim2.new(0, 5, 0, yPos), BackgroundColor3 = Color3.fromRGB(30, 30, 30), TextColor3 = Color3.new(1, 1, 1), Text = targetPlayer.Name})
+c("UICorner", pBtn, {CornerRadius = UDim.new(0, 4)})
+pBtn.MouseButton1Click:Connect(function()
+if targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+p.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
+end
+end)
+yPos = yPos + 32
+end
+end
+tpListFrame.CanvasSize = UDim2.new(0, 0, 0, yPos)
+end
+
+tpDropBtn.MouseButton1Click:Connect(function()
+tpDropdownOpen = not tpDropdownOpen
+tpListFrame.Visible = tpDropdownOpen
+tpDropBtn.Text = "Teleport   "..(tpDropdownOpen and "â²" or "â¼")
+if tpDropdownOpen then
+updateTpPlayerList()
+end
+end)
+
+P.PlayerAdded:Connect(function() if tpDropdownOpen then updateTpPlayerList() end end)
+P.PlayerRemoving:Connect(function() if tpDropdownOpen then updateTpPlayerList() end end)
+
+-- COMBAT TAB FEATURES
+local hbB = btn(p2, "Hitbox Expander: OFF", 15, Color3.fromRGB(25, 25, 25))
+hbB.MouseButton1Click:Connect(function()
+_G.Disabled = not _G.Disabled
+hbB.Text = "Hitbox Expander: "..(_G.Disabled and "ON" or "OFF")
+hbB.BackgroundColor3 = _G.Disabled and Color3.fromRGB(70, 70, 70) or Color3.fromRGB(25, 25, 25)
+if not _G.Disabled then
+for _, v in ipairs(P:GetPlayers()) do
+if v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+local b = v.Character.HumanoidRootPart:FindFirstChild("HitboxVisual")
+if b then b:Destroy() end
+v.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+end
+end
+end
+end)
+
+local hsB = c("TextBox", p2, {Size = UDim2.new(0, 170, 0, 30), Position = UDim2.new(0, 12, 0, 55), BackgroundColor3 = Color3.fromRGB(35, 35, 35), TextColor3 = Color3.new(1, 1, 1), PlaceholderText = "Head Size"})
+c("UICorner", hsB, {CornerRadius = UDim.new(0, 5)})
+hsB.FocusLost:Connect(function()
+local v = tonumber(hsB.Text)
+if v then _G.HeadSize = math.clamp(v, 1, 10) hsB.Text = tostring(_G.HeadSize) end
+end)
+
+local htB = c("TextBox", p2, {Size = UDim2.new(0, 170, 0, 30), Position = UDim2.new(0, 192, 0, 55), BackgroundColor3 = Color3.fromRGB(35, 35, 35), TextColor3 = Color3.new(1, 1, 1), PlaceholderText = "Hitbox Transparency"})
+c("UICorner", htB, {CornerRadius = UDim.new(0, 5)})
+htB.FocusLost:Connect(function()
+local v = tonumber(htB.Text)
+if v then _G.HitboxTransparency = math.clamp(v, 0, 100) htB.Text = tostring(_G.HitboxTransparency) end
+end)
+
+local ncB = btn(p2, "Noclip: OFF", 95, Color3.fromRGB(25, 25, 25))
+ncB.MouseButton1Click:Connect(function()
+local a = ncB.Text:find("OFF")
+if a then
+nc = RS.Stepped:Connect(function()
+if p.Character then for _, v in ipairs(p.Character:GetDescendants()) do if v:IsA("BasePart") and v.CanCollide then v.CanCollide = false end end end
+end)
+elseif nc then nc:Disconnect() nc = nil end
+ncB.Text, ncB.BackgroundColor3 = "Noclip: "..(a and "ON" or "OFF"), a and Color3.fromRGB(70, 70, 70) or Color3.fromRGB(25, 25, 25)
+end)
+
+local esB = btn(p2, "ESP: OFF", 135, Color3.fromRGB(25, 25, 25))
+esB.Size = UDim2.new(0, 240, 0, 30)
+
+local teamColorPool = {
+Color3.fromRGB(255, 50, 50),
+Color3.fromRGB(50, 100, 255),
+Color3.fromRGB(255, 165, 0),
+Color3.fromRGB(160, 32, 240),
+Color3.fromRGB(255, 255, 0),
+Color3.fromRGB(0, 255, 255)
+}
+local assignedTeamColors = {}
+
+local function getAssignedTeamColor(teamName)
+if not teamName then return Color3.fromRGB(255, 255, 255) end
+if not assignedTeamColors[teamName] then
+local count = 0
+for _ in pairs(assignedTeamColors) do count = count + 1 end
+assignedTeamColors[teamName] = teamColorPool[(count % #teamColorPool) + 1]
+end
+return assignedTeamColors[teamName]
+end
+
+local function uESP()
+for _, v in ipairs(P:GetPlayers()) do
+if v ~= p and v.Character then
+local h = v.Character:FindFirstChild("PE")
+if he then
+if not h then h = c("Highlight", v.Character, {Name = "PE", DepthMode = Enum.HighlightDepthMode.AlwaysOnTop}) end
+local col = Color3.fromRGB(255, 255, 255)
+if v.Team and p.Team then
+if v.Team == p.Team then
+col = Color3.fromRGB(0, 255, 0)
+else
+col = getAssignedTeamColor(v.Team.Name)
+end
+elseif v.Team then
+col = getAssignedTeamColor(v.Team.Name)
+else
+col = Color3.fromRGB(255, 50, 50)
+end
+h.FillColor = col
+h.FillTransparency = 0.5
+h.OutlineColor = Color3.fromRGB(255, 255, 255)
+h.OutlineTransparency = 0.5
+local t = v.Character:FindFirstChild("PETag")
+if t then t:Destroy() end
+else
+if h then h:Destroy() end 
+local t = v.Character:FindFirstChild("PETag")
+if t then t:Destroy() end
+end
+end
+end
+end
+
+task.spawn(function()
+while true do
+task.wait(0.5)
+if he then
+uESP()
+end
+end
+end)
+
+esB.MouseButton1Click:Connect(function() he = not he esB.Text = "ESP: "..(he and "ON" or "OFF") esB.BackgroundColor3 = he and Color3.fromRGB(70, 70, 70) or Color3.fromRGB(25, 25, 25) uESP() end)
+
+P.PlayerAdded:Connect(function(v) 
+v.CharacterAdded:Connect(function() task.wait(0.2) uESP() end) 
+v:GetPropertyChangedSignal("Team"):Connect(uESP)
+end)
+
+p:GetPropertyChangedSignal("Team"):Connect(function()
+assignedTeamColors = {}
+uESP()
+end)
+
+p.CharacterAdded:Connect(function() sFly() sVFly() end)
+
+U.JumpRequest:Connect(function() local h = uj and p.Character and p.Character:FindFirstChildOfClass("Humanoid") if h then h:ChangeState(Enum.HumanoidStateType.Jumping) end end)
+
+-- Loading Bar Animation (5 Seconds Duration)
+task.spawn(function()
+local tweenService = game:GetService("TweenService")
+local info = TweenInfo.new(5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local tween = tweenService:Create(barFill, info, {Size = UDim2.new(1, 0, 1, 0)})
+tween:Play()
+tween.Completed:Wait()
+
+-- Smooth fade out effect for the loading screen
+local fadeInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local fadeBgTween = tweenService:Create(loadBg, fadeInfo, {BackgroundTransparency = 1})
+local fadeTitleTween = tweenService:Create(loadTitle, fadeInfo, {TextTransparency = 1})
+local fadeSubTween = tweenService:Create(loadSub, fadeInfo, {TextTransparency = 1})
+local fadeBarBgTween = tweenService:Create(barBg, fadeInfo, {BackgroundTransparency = 1})
+local fadeBarFillTween = tweenService:Create(barFill, fadeInfo, {BackgroundTransparency = 1})
+
+fadeBgTween:Play()
+fadeTitleTween:Play()
+fadeSubTween:Play()
+fadeBarBgTween:Play()
+fadeBarFillTween:Play()
+
+fadeBgTween.Completed:Wait()
+loadBg:Destroy()
+
+-- Reveal the main UI
+f.Visible = true
+end)
